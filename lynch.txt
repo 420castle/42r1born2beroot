@@ -1,0 +1,121 @@
+sudo nano /etc/ssh/sshd_config
+PermitRootLogin no
+
+1: Explain what is a virtual machine
+	1.1: How does a virtual machine work?
+	1.2: Why did I choose Debian?
+	1.3: Rocky vs Debian
+	1.4: What is the purpose of virtual machines
+	1.5: Aptitude vs Apt
+	1.6: What is APPArmor?
+	1.7: Monitoring script
+		- Later
+
+2: Simple Setup
+	2.1: Connect with a user (not root)
+		- User: marcofer
+	2.2: Check UFW status
+		- sudo service ufw status				
+	2.3: Check SSH status
+		- sudo service ssh status
+	2.4: Check operating system
+		- hostnamectl
+		- cat /etc/os-release
+
+3: User
+	3.1: Check user marcofer
+		getent passwd | cut -d: f1
+		- getent passwd: This command retrieves entries from the user database
+		- cut: This command is used to extract specific parts or fields from each line of input.
+		- d:: This option specifies the delimiter used in the input. In this case, the delimiter is set to :
+		- f1: This option specifies which field to display or extract		
+	3.2: Check it belongs to sudo and user42
+		getent group evaluating
+		getent group user42	
+	3.3: Add new user and explain password policy
+		sudo adduser new_username
+		sudo nano /etc/pam.d/common-password
+		sudo nano /etc/login.defs
+	3.4: Add new user to evaluating
+		sudo groupdel evaluating
+		sudo groupadd evaluating
+		sudo usermod -aG evaluating new_username
+			-a: This option stands for "append." Appends the user to the specified group without removing the user from their existing groups.
+			-G mygroup: This specifies the group to which the user myuser will be added.
+	3.5: Explain the advantages of this password policy
+
+4: Hostname and Partitions
+	4.1: Check hostname
+		hostnamectl
+	4.2: Change hostname to evaluators login and change it back
+		sudo hostnamectl set-hostname login42
+		sudo reboot
+		sudo hostnamectl set-hostname marcofer42
+		sudo reboot
+	4.3: Check partitions
+		lsblk
+	4.4: Explain LVM
+		LVM = Logical Volume Manager.
+		Flexible disk management tool in Linux systems
+		Manages disk drives and storage devices
+
+		Key Components:
+		1. Physical Volumes (PV):
+			A Physical Volume (PV) represents a physical storage device such as a hard drive, SSD, or partition that is incorporated into the LVM setup.
+			PVs are created by assigning a whole disk or a partition to be used by LVM.
+		2. Volume Groups (VG):
+			Volume Groups (VG) are created by combining one or more PVs.
+			VGs pool together the storage capacity from multiple physical volumes.
+		3. Logical Volumes (LV):
+			Logical Volumes (LV) are virtual partitions created within a Volume Group.
+			LVs are similar to partitions but have the flexibility to be resized, moved, or modified without necessarily affecting the data within other logical volumes or the VG itself.
+		4. Physical Extents (PE):
+			Physical Extents (PE) are small chunks of disk space (usually 4MB in size) that make up the building blocks of both PVs and LVs.
+			The size of a PE is configurable during the creation of a Volume Group.	
+
+		Advantages of LVM:
+		1. Flexibility:
+			LVM allows for dynamic resizing of logical volumes without affecting data.
+		2. Snapshots:
+			Create point-in-time snapshots of volumes for backup or testing purposes.
+		3. Striping and Mirroring:
+			Enable data striping (to enhance performance) and mirroring (for redundancy).
+		4. Ease of management:
+			Simplifies disk management by abstracting physical disks into logical volumes.
+
+		Summary:
+			LVM provides an abstraction layer
+			Makes managing storage easier and more flexible
+			Useful in environments where storage requirements might change over time.
+			Commonly used in servers and systems where dynamic allocation and resizing of storage are critical.
+
+5: Sudo
+	5.1: Check that sudo is properly installed
+	5.2: Assign new user to sudo group
+	5.3: Explain the value and operation of sudo
+	5.4: Show the implementation of the rules
+	5.5: Verify folder "/var/log/sudo". See command log
+	5.6: Run command. See file again
+
+6: UFW
+	6.1: Check if UFW is installed and working
+	6.2: Explain UFW and advantages
+	6.3: List active rules
+	6.4: Add and delete rule for port 8080
+
+7: SSH
+	7.1: Check if SSH is installed and working
+	7.2: Explain SSH and advantages
+	7.3: Check only port 4242
+	7.4: Log in with new_user
+	7.5: Try to log in as root
+
+8: Script Monitoring
+	8.1: Show the code
+	8.2: Explain the code
+	8.3: Explain the scheduling
+	8.4: Make the script stop and restart
+	8.5: Check script content and rights are unchanged
+
+BONUS
+

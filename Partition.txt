@@ -1,0 +1,14 @@
+NAME                            MAJ:MIN RM  SIZE RO TYPE  MOUNTPOINTS
+sda                               8:0    0   12G  0 disk  
+├─sda1                            8:1    0  487M  0 part  /boot
+├─sda2                            8:2    0    1K  0 part  
+└─sda5                            8:5    0 11.5G  0 part  
+  └─sda5_crypt                  254:0    0 11.5G  0 crypt 
+    ├─marcofer42--vg-root       254:1    0  2.6G  0 lvm   /
+    ├─marcofer42--vg-swap       254:2    0  976M  0 lvm   [SWAP]
+    └─marcofer42--vg-home       254:3    0  6.6G  0 lvm   /home
+    ├─marcofer42--vg-var        254:4    0  1.2G  0 lvm   /var
+    ├─marcofer42--vg-srv        254:5    0  280M  0 lvm   /srv
+    ├─marcofer42--vg-tmp        254:6    0  280M  0 lvm   /tmp
+    ├─marcofer42--vg-var--log   254:6    0  280M  0 lvm   /var/log
+sr0                          	11:0    1 1024M  0 rom 
