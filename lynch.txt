@@ -1,7 +1,7 @@
 sudo nano /etc/ssh/sshd_config
 PermitRootLogin no
 
-1: Explain what is a virtual machine
+1: Virtual Machine
 	1.1: How does a virtual machine work?
 	1.2: Why did I choose Debian?
 	1.3: Rocky vs Debian
@@ -11,7 +11,7 @@ PermitRootLogin no
 	1.7: Monitoring script
 		- Later
 
-2: Simple Setup
+2: Setup
 	2.1: Connect with a user (not root)
 		- User: marcofer
 	2.2: Check UFW status
@@ -91,31 +91,328 @@ PermitRootLogin no
 
 5: Sudo
 	5.1: Check that sudo is properly installed
+		which sudo
+		dpkg -l | grep sudo
+
 	5.2: Assign new user to sudo group
+		sudo usermod -aG sudo new_username
+
 	5.3: Explain the value and operation of sudo
+		sudo = (Superuser Do) 
+		Command in Unix-like operating systems
+		Helps with system administration and access control
+
+		Advantages:
+		1. Enhanced Security:
+			Granular Control:
+				sudo provides fine-grained access control by allowing specific users or groups to execute privileged commands.
+			Auditing and Logging:
+				It logs every command executed with sudo, providing accountability and aiding in auditing.
+		2. Reduced Risk of Accidental Damage:
+			Selective Privilege Elevation:
+				Users perform privileged tasks only when necessary by using sudo for specific commands, reducing the risk of accidental system damage.
+			Avoiding Constant Root Access:
+				Eliminates the need for users to be constantly logged in as the root user, minimizing potential mistakes.
+		3. User Accountability and Traceability:
+			Accountability:
+				Allows for tracking and tracing commands back to the actual user executing them, enhancing accountability.
+			Controlled Command Execution:
+				Users must provide their own password to execute commands with elevated privileges, adding an additional layer of security.
+		4. Controlled Access to Resources:
+			Resource Segregation:
+				Limits access to system resources based on specified user privileges, enhancing security.
+			Customizable Configuration:
+				Administrators can configure sudo to restrict or expand user access to specific commands or directories.
+		5. Encourages Best Practices:
+			Encourages Good Habits:
+				Encourages users to be mindful of the commands they execute with elevated privileges, promoting responsible system administration practices.
+			Centralized Administration:
+				Provides centralized control over user access to privileged operations.
+		6. Flexibility and Ease of Management:
+			Dynamic Configuration:
+				Administrators can dynamically update sudoers configuration files without the need to restart the system or user sessions.
+			Integration with Configuration Management Tools:
+				Easily integrates with configuration management tools for automated access control.
+		
+		Summary:
+			Proper configuration and understanding of sudo usage are crucial to harness its benefits effectively while maintaining system security.
+			Misconfiguration or misuse of sudo could lead to security vulnerabilities or unintended system changes. It's essential to follow best practices and thoroughly understand its capabilities and limitations.
+
 	5.4: Show the implementation of the rules
+		sudo visudo
+		nano /etc/sudoers
+
+		RULES:
+			Defaults env_reset:
+				Resets environment variables to default when executing commands with sudo.
+			Defaults mail_badpass:
+				Sends email to the mail_always recipient if a user enters an incorrect password.
+			Defaults secure_path="/usr/local/sbin:/usr/local/bin:/usr/bin:/sbin:/bin":
+				Defines the default secure path for commands run with sudo.
+			Defaults badpass_message="Oopsy! Wrong password :P":
+				Customizes the message displayed on incorrect password entry.
+			Defaults passwd_tries=3:
+				Specifies the number of password attempts before sudo exits.
+			Defaults logfile="/var/log/sudo.log":
+				Logs sudo command usage to /var/log/sudo.log.
+			Defaults log_input, log_output:
+				Logs both input and output of commands executed through sudo.
+			Defaults requiretty:
+				Requires a TTY (teletypewriter) for sudo commands, ensuring they are run from a terminal.		
+
+			Defaults use_pty:
+				Uses a pseudo-terminal (PTY) for I/O logging.
+
+			root ALL=(ALL:ALL) ALL:
+				Allows the root user to run any command as any user on any host using sudo.
+			marcofer ALL=(ALL) ALL:
+				Grants the user marcofer permission to execute any command as any user or group using sudo.
+			%sudo ALL=(ALL:ALL) ALL:
+				Allows members of the sudo group to execute any command as any user or group using sudo.
+			marcofer ALL=(ALL) NOPASSWD: /usr/local/bin/monitoring.sh:
+				Allows the user marcofer to execute /usr/local/bin/monitoring.sh without entering a password.				
+
+			@includedir /etc/sudoers.d:
+				Includes additional configuration files from the specified directory (/etc/sudoers.d). This line allows for additional modular sudo configurations.
+
 	5.5: Verify folder "/var/log/sudo". See command log
+		cd /var/log/sudo ; ls
+		cat sudo.log
+
 	5.6: Run command. See file again
 
 6: UFW
 	6.1: Check if UFW is installed and working
+		sudo service ufw status
+		
 	6.2: Explain UFW and advantages
+		- UFW = Uncomplicated Firewall
+		- User-friendly command-line tool used to manage netfilter
+		- Netfilter = the firewall infrastructure in Linux systems. 
+		- Simpler interface for managing firewall rules compared to directly interacting with netfilter.
+
+		Advantages:
+			- Simplicity and Ease of Use:
+				Simplifies firewall configuration by providing a straightforward command-line interface, making it more accessible for users who are not firewall experts.		
+			- User-Friendly Syntax:
+				The commands and syntax used in ufw are relatively simple and intuitive, making it easier to create and manage firewall rules.			
+			- Application Profiles:
+				ufw supports application profiles, allowing users to enable specific predefined configurations for commonly used services and applications without manually defining complex rules.			
+			- Default Deny Policy:
+				By default, ufw follows a default deny policy, meaning that all incoming connections are denied unless explicitly allowed by firewall rules. This enhances security by reducing the attack surface.			
+			- Integration with iptables:
+				UFW is a frontend to iptables, a powerful firewall management tool. It provides a simplified interface while still utilizing the capabilities of iptables under the hood.			
+			- Port and IP-Based Rules:
+				Users can easily create rules to allow or deny traffic based on ports or IP addresses, simplifying network traffic management.			
+			- Logging and Status Checking:
+				ufw allows users to enable logging for specific rules, providing visibility into which packets are being allowed or denied by the firewall. Additionally, it provides commands to check the status of the firewall rules.			
+			- Integration with Applications:
+				Some applications automatically configure ufw during installation, simplifying the setup of firewall rules specific to those applications.			
+			- Community Support and Documentation:
+				ufw has good community support and documentation available, making it easier for users to find help and resources when configuring firewalls.
+
+		Basic commands:
+			sudo ufw enable
+				Activates the firewall.
+			sudo ufw disable
+				Turns off the firewall.
+			sudo ufw default deny incoming
+				Sets the default policy to deny incoming connections.
+			sudo ufw allow <port>/<protocol>
+				Allows incoming traffic on a specific port and protocol.
+			sudo ufw deny <port>/<protocol>
+				Denies incoming traffic on a specific port and protocol.
+			sudo ufw status
+				Shows the current status and rules of the firewall.
+			
+		Summary:
+			- UFW is a powerful yet easy-to-use tool for managing firewall rules in Linux systems
+			- Offers a balance between simplicity and functionality for securing network traffic.	
+
 	6.3: List active rules
+		sudo ufw status numbered
+
+		Rules:
+			- Rules [1] and [2] specify allowing traffic on port 4242 for both TCP and UDP protocols from IPv4 addresses.
+			- Rules [3] and [4] specify allowing traffic on port 4242 for both TCP and UDP protocols from IPv6 addresses.
+
+		TCP vs UDP
+			- TCP (Transmission Control Protocol) and UDP (User Datagram Protocol) are two prominent transport layer protocols used for communication between devices over a network. They serve as building blocks for data transmission, but they have distinct characteristics suitable for different types of communication.
+
+			Transmission Control Protocol (TCP):
+				Connection-Oriented Protocol:
+					TCP is a connection-oriented protocol that establishes a reliable and ordered communication channel between two devices before transmitting data.
+				Reliability and Error Checking:
+					Provides reliable, error-checked, and ordered delivery of data packets.
+					Uses acknowledgment mechanisms to ensure data delivery and retransmission of lost packets.
+				Flow Control:
+					Implements flow control mechanisms to manage data transmission rates between sender and receiver.
+				Features:
+					Suitable for applications that require guaranteed delivery of data, such as web browsing, email, file transfer (FTP), etc.
+					Slower than UDP due to the overhead of establishing connections and ensuring reliability.
+
+			User Datagram Protocol (UDP):
+				Connectionless Protocol:
+					UDP is a connectionless protocol that does not establish a dedicated connection before sending data.
+				Unreliable and No Error Checking:
+					Provides unreliable and unordered delivery of data packets.
+					No built-in mechanisms for acknowledgment, retransmission, or error checking.
+				Minimal Overhead:
+					Has lower overhead compared to TCP due to its simplicity.
+				Features:
+					Suitable for applications prioritizing speed and efficiency over guaranteed delivery, such as video streaming, online gaming, DNS, VoIP, etc.
+					Faster than TCP but may result in occasional data loss or out-of-order delivery.
+			
+			Comparison:
+				Reliability:
+					TCP ensures reliable data delivery by acknowledging packets and retransmitting if needed
+					UDP does not guarantee delivery and has no built-in error recovery.
+				Overhead:
+					TCP has higher overhead due to its reliability mechanisms
+					UDP has lower overhead due to its simplicity.
+				Usage:
+					TCP is preferred for applications requiring guaranteed data delivery
+					UDP is used for real-time applications where speed is critical and occasional data loss is acceptable.
+
+			Summary
+				Both TCP and UDP play crucial roles in networking, and the choice between them depends on the specific requirements of the application regarding reliability, speed, and the nature of data being transmitted.		
+
+		IPv4 vs IPv6
+			- IPv4 (Internet Protocol version 4) and IPv6 (Internet Protocol version 6) are addressing systems used to uniquely identify devices on a network. They are fundamental protocols that enable communication between devices over the Internet or any network.
+
+			IPv4:
+				- IPv4 addresses are 32-bit numerical addresses expressed in dotted-decimal format (e.g., 192.168.1.1).
+				- Consists of four sets of decimal numbers ranging from 0 to 255, separated by periods.
+				- Limited address space (approximately 4.3 billion unique addresses).
+				- Due to the rapid growth of the internet, IPv4 addresses have become scarce.
+
+			IPv6:
+				- IPv6 addresses are 128-bit hexadecimal addresses (e.g., 2001:0db8:85a3:0000:0000:8a2e:0370:7334).
+				- Offers a significantly larger address space compared to IPv4 (approximately 340 undecillion unique addresses).
+				- Consists of eight groups of four hexadecimal digits separated by colons.
+				- Provides enhanced features like improved security, better efficiency, and support for new technologies.			
+
 	6.4: Add and delete rule for port 8080
+		sudo ufw allow 8080
+		sudo ufw status numbered
+		sudo ufw delete 3
+		sudo ufw delete 5
+		sudo ufw status numbered
 
 7: SSH
 	7.1: Check if SSH is installed and working
+		sudo service ssh status
+
 	7.2: Explain SSH and advantages
+
 	7.3: Check only port 4242
+		sudo nano /etc/ssh/sshd_config
+
 	7.4: Log in with new_user
+		ip addr show | grep "inet "
+		Open terminal		
+
 	7.5: Try to log in as root
 
 8: Script Monitoring
 	8.1: Show the code
+		cd /usr/local/bin
+		nano monitoring.sh
+
 	8.2: Explain the code
-	8.3: Explain the scheduling
-	8.4: Make the script stop and restart
-	8.5: Check script content and rights are unchanged
+		#!/bin/bash:
+			Specifies the script should be executed by the Bash shell.
+		arc=$(uname -a):
+			Assigns the output of uname -a (displays system information) to the variable arc.	
+		pcpu=$(grep "physical id" /proc/cpuinfo | sort | uniq | wc -l):
+			Counts the number of unique physical CPUs.	
+		vcpu=$(grep "^processor" /proc/cpuinfo | wc -l):
+			Counts the number of virtual CPUs.	
+		fram=$(free -m | awk '$1 == "Mem:" {print $2}'):
+			Retrieves the total RAM in megabytes.	
+		uram=$(free -m | awk '$1 == "Mem:" {print $3}'):
+			Retrieves the used RAM in megabytes.	
+		pram=$(free | awk '$1 == "Mem:" {printf("%.2f"), $3/$2*100}'):
+			Calculates the percentage of used RAM.	
+		fdisk=$(df -BG | grep '^/dev/' | grep -v '/boot$' | awk '{ft += $2} END {print ft}'):
+			Calculates the total disk space in gigabytes.	
+		udisk=$(df -BM | grep '^/dev/' | grep -v '/boot$' | awk '{ut += $3} END {print ut}'):
+			Calculates the used disk space in megabytes.	
+		pdisk=$(df -BM | grep '^/dev/' | grep -v '/boot$' | awk '{ut += $3} {ft+= $2} END {printf("%d"), ut/ft*100}'):
+			Calculates the percentage of used disk space.	
+		cpul=$(top -bn1 | grep '^%Cpu' | cut -c 9- | xargs | awk '{printf("%.1f%%"), $1 + $3}'):
+			Calculates CPU load as a percentage.	
+		lb=$(who -b | awk '$1 == "system" {print $3 " " $4}'):
+			Retrieves the last system boot time.	
+		lvmu=$(if [ $(lsblk | grep "lvm" | wc -l) -eq 0 ]; then echo no; else echo yes; fi):
+			Determines if LVM is in use.	
+		ctcp=$(ss -neopt state established | wc -l):
+			Counts established TCP connections.	
+		ulog=$(users | wc -w):
+			Counts logged-in users.	
+		ip=$(hostname -I):
+			Retrieves the system's IP address.	
+		mac=$(ip link show | grep "ether" | awk '{print $2}'):
+			Retrieves the MAC address of the system.	
+		cmds=$(journalctl _COMM=sudo | grep COMMAND | wc -l):
+			Counts the number of sudo commands executed.
+
+		wall "... $cmds cmd":
+			Broadcasts system information to all users' terminals using the wall command.
+
+	8.3: Explain crontab
+		Commands used to install
+			apt-get install -y net-tools
+			cd /usr/local/bin/
+			chmod 777 monitoring.sh
+
+	8.4: Explain the scheduling
+		sudo crontab -u root -e
+		*/10 * * * * /usr/local/bin/monitoring.sh
+
+		Scheduled task using the cron daemon to execute the script /usr/local/bin/monitoring.sh at regular intervals.
+
+		*/10:
+			- Frequency of execution -> "every 10 minutes"
+			- The asterisk (*) represents "every"
+			- The forward slash (/) is used for repetition or intervals
+			- So, */10 specifies that the command will run every 10 minutes.
+
+		* * * * *:
+			- Schedule or timing pattern
+			- Five fields, each separated by a space
+			- The fields specify minute, hour, day of the month, month, and day of the week, respectively
+			- In this case:
+				- * in each field means "every"
+				- * * * * * implies that the command will run every minute of every hour, every day, every month, and every day of the week.
+
+		/usr/local/bin/monitoring.sh:
+			- This is the command that will be executed by the cron job
+			- It specifies the full path to the script monitoring.sh located at /usr/local/bin/.
+
+		Summary:
+			Putting it all together, the line */10 * * * * /usr/local/bin/monitoring.sh means that the script /usr/local/bin/monitoring.sh will be executed every 10 minutes, every day, month, and day of the week, indefinitely, as specified by the cron job schedule.		
+
+	8.5 Run the script with dynamic values
+		sudo crontab -u root -e
+		sudo:
+			- This command is used to execute subsequent commands with elevated or superuser privileges. It allows users to perform tasks as another user, typically the root user, based on the configuration in the sudoers file.
+		crontab:
+			- This command is used to manage the cron jobs or schedules. Specifically:
+		-u root:
+			- Specifies the user whose cron jobs are being manipulated. In this case, it indicates the root user.
+		-e:
+			- This flag stands for "edit". It opens the cron table for editing in the default text editor set in the environment variables (usually vi or nano). If no cron table exists for the specified user, it creates a new one.		
+
+	8.6: Make the script stop and restart
+		Comment the line
+		*/10 * * * * /usr/local/bin/monitoring.sh
+		sudo cronstop
+		sudo reboot
+
+	8.7: Check script content and rights are unchanged
+		cd /usr/local/bin
+		ls -l
 
 BONUS
 
