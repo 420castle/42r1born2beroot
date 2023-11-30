@@ -23,7 +23,7 @@ PermitRootLogin no
 		- cat /etc/os-release
 
 3: User
-	3.1: Check user marcofer
+	3.1: Check user marcofer exists 
 		getent passwd | cut -d: f1
 		- getent passwd: This command retrieves entries from the user database
 		- cut: This command is used to extract specific parts or fields from each line of input.
@@ -158,10 +158,19 @@ PermitRootLogin no
 			Defaults log_input, log_output:
 				Logs both input and output of commands executed through sudo.
 			Defaults requiretty:
-				Requires a TTY (teletypewriter) for sudo commands, ensuring they are run from a terminal.		
+				Requires a TTY (teletypewriter) for sudo commands, ensuring they are run from a terminal.
+				Ex.: Can't run sudo commands from an automated script		
 
 			Defaults use_pty:
+				PTY = Pseudo-Terminal
 				Uses a pseudo-terminal (PTY) for I/O logging.
+					Disabling the use_pty setting in the /etc/sudoers file would prevent sudo from allocating a pseudo-terminal (PTY) when executing commands with elevated privileges. This change can affect how certain commands behave and their interaction with terminal-like environments.
+				- Non-Interactive Behavior:
+					- Without a PTY allocated by sudo, commands executed with sudo might behave differently, especially if they expect an interactive terminal environment. This could affect programs or scripts that rely on terminal-like interaction.				
+				- Output Handling:
+					- Programs may behave differently in terms of handling input and output if they expect a terminal and use_pty is disabled. Some applications might not provide output or prompt for input as expected.				
+				- Compatibility Issues:
+					- Certain commands or applications may encounter compatibility issues or fail to execute correctly without a PTY, particularly if they rely on interactive user input or terminal-specific features.				
 
 			root ALL=(ALL:ALL) ALL:
 				Allows the root user to run any command as any user on any host using sudo.
@@ -307,6 +316,8 @@ PermitRootLogin no
 
 	7.3: Check only port 4242
 		sudo nano /etc/ssh/sshd_config
+		Port 4242
+		PermitRootLogin no
 
 	7.4: Log in with new_user
 		ip addr show | grep "inet "
@@ -393,7 +404,7 @@ PermitRootLogin no
 		Summary:
 			Putting it all together, the line */10 * * * * /usr/local/bin/monitoring.sh means that the script /usr/local/bin/monitoring.sh will be executed every 10 minutes, every day, month, and day of the week, indefinitely, as specified by the cron job schedule.		
 
-	8.5 Run the script with dynamic values
+	8.5: Run the script with dynamic values
 		sudo crontab -u root -e
 		sudo:
 			- This command is used to execute subsequent commands with elevated or superuser privileges. It allows users to perform tasks as another user, typically the root user, based on the configuration in the sudoers file.
